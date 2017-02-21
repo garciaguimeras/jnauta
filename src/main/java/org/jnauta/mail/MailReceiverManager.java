@@ -11,13 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.mail.BodyPart;
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Store;
+import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.FlagTerm;
@@ -80,13 +74,30 @@ public class MailReceiverManager extends MailManager
         return new ArrayList<Folder>();
     }
 
-    public Folder openFolder(String folderName)
+    public Folder openFolder(String folderName, boolean readOnly)
     {
         try
         {
             Folder folder = store.getFolder(folderName);
             if (folder == null)
                 return null;
+            folder.open(readOnly ? Folder.READ_ONLY : Folder.READ_WRITE);
+            return folder;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Folder createFolder(String folderName)
+    {
+        try
+        {
+            Folder folder = store.getDefaultFolder().getFolder(folderName);
+            if (!folder.exists())
+                folder.create(Folder.HOLDS_MESSAGES);
             folder.open(Folder.READ_WRITE);
             return folder;
         }
@@ -95,6 +106,7 @@ public class MailReceiverManager extends MailManager
             e.printStackTrace();
         }
         return null;
+
     }
 
     public void closeFolder(Folder folder)
@@ -109,6 +121,20 @@ public class MailReceiverManager extends MailManager
         }
     }
 
+    public int getUnreadMessagesCount(Folder folder)
+    {
+        try
+        {
+            return folder.getUnreadMessageCount();
+        }
+        catch (MessagingException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
     public Message[] getUnreadMessages(Folder folder)
     {
         FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
@@ -122,6 +148,85 @@ public class MailReceiverManager extends MailManager
             e.printStackTrace();
         }
         return new Message[] {};
+    }
+
+    public int getNewMessagesCount(Folder folder)
+    {
+        try
+        {
+            return folder.getNewMessageCount();
+        }
+        catch (MessagingException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Message[] getNewMessages(Folder folder)
+    {
+        FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.RECENT), true);
+        try
+        {
+            Message[] messages = folder.search(ft);
+            return messages;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return new Message[] {};
+    }
+
+    public void markMessagesAsRead(Folder folder, Message[] messages)
+    {
+        try
+        {
+            folder.setFlags(messages, new Flags(Flags.Flag.SEEN), true);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void markMessageAsRead(Folder folder, Message message)
+    {
+        markMessagesAsRead(folder, new Message[] { message });
+    }
+
+    public void copyMessages(Folder fromFolder, Folder toFolder, Message[] messages)
+    {
+        try
+        {
+            fromFolder.copyMessages(messages, toFolder);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void copyMessage(Folder fromFolder, Folder toFolder, Message message)
+    {
+        copyMessages(fromFolder, toFolder, new Message[] { message });
+    }
+
+    public void deleteMessages(Folder folder, Message[] messages)
+    {
+        try
+        {
+            folder.setFlags(messages, new Flags(Flags.Flag.DELETED), true);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteMessage(Folder folder, Message message)
+    {
+        deleteMessages(folder, new Message[] { message });
     }
 
     private String getMessageContentAsMultipart(Multipart content)
@@ -288,6 +393,55 @@ public class MailReceiverManager extends MailManager
         }
 
         return result != null ? result : "";
+    }
+
+    private List<MailAttachment> getAttachments(Multipart content)
+    {
+        ArrayList<MailAttachment> result = new ArrayList<MailAttachment>();
+
+        try
+        {
+            int count = content.getCount();
+            for (int i = 0; i < count; i++)
+            {
+                BodyPart part = content.getBodyPart(i);
+                if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition()))
+                {
+                    MailAttachment attachment = new MailAttachment(part.getFileName(), part.getContentType(), part.getInputStream());
+                    result.add(attachment);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public List<MailAttachment> getMessageAttachments(Message message)
+    {
+        List<MailAttachment> result = null;
+
+        try
+        {
+            if (message instanceof MimeMessage)
+            {
+                MimeMessage m = (MimeMessage) message;
+                Object contentObject = m.getContent();
+                if (contentObject instanceof Multipart)
+                {
+                    result = getAttachments((Multipart) contentObject);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
 }
