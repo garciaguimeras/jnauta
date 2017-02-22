@@ -25,14 +25,23 @@ import javax.mail.util.SharedByteArrayInputStream;
 public class MailReceiverManager extends MailManager
 {
 
+    public enum Protocol
+    {
+        POP,
+        IMAP
+    }
+
     Store store;
 
-    public MailReceiverManager(String host, int port, String username, String password, MailSecurityType securityType, boolean acceptInvalidCertificates) throws  MailException
+    public MailReceiverManager(Protocol protocol, String host, int port, String username, String password, MailSecurityType securityType, boolean acceptInvalidCertificates) throws  MailException
     {
         super(host, port, username, password, securityType, acceptInvalidCertificates);
         try
         {
-            store = PopSession.createStore(host, port, username, password, securityType, acceptInvalidCertificates);
+            if (protocol == Protocol.POP)
+                store = PopSession.createStore(host, port, username, password, securityType, acceptInvalidCertificates);
+            else
+                store = ImapSession.createStore(host, port, username, password, securityType, acceptInvalidCertificates);
             store.connect();
         }
         catch (Exception e)
@@ -90,11 +99,11 @@ public class MailReceiverManager extends MailManager
         }
     }
 
-    public Folder createFolder(Folder parent, String folderName) throws MailException
+    public Folder createFolder(String folderName) throws MailException
     {
         try
         {
-            Folder folder = parent.getFolder(folderName);
+            Folder folder = store.getDefaultFolder().getFolder(folderName);
             if (folder == null)
                 return null;
             boolean result = true;

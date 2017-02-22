@@ -4,7 +4,8 @@ An incomplete Java mail library, to be used with cuban Nauta accounts.
 
 ## Features
 
-* Version 0.1.1
+* Version 0.2.0
+    * Added IMAP protocol support
     * Reading message attachments
     * Getting read and new messages count
     * Creating new folders
@@ -51,3 +52,24 @@ dependencies {
 }
 ```
 
+## Nauta configurations
+
+### Nauta over POP3
+
+* Server: **pop.nauta.cu**
+* Port: **110**
+* Available folders:
+    * INBOX
+
+### Nauta over IMAP
+
+* Server: **imap.nauta.cu**
+* Port: **143**
+* Available folders:
+    * INBOX
+    * Drafts
+    * Junk
+    * Trash
+    * Sent
+    * Archives
+    * Templates
