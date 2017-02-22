@@ -6,7 +6,7 @@ package org.jnauta.mail;
 
 public class NautaMailReceiver extends MailReceiverManager
 {
-    public NautaMailReceiver(String username, String password)
+    public NautaMailReceiver(String username, String password) throws MailException
     {
         super("pop.nauta.cu",
               110,

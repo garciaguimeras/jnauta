@@ -27,7 +27,7 @@ public class MailReceiverManager extends MailManager
 
     Store store;
 
-    public MailReceiverManager(String host, int port, String username, String password, MailSecurityType securityType, boolean acceptInvalidCertificates)
+    public MailReceiverManager(String host, int port, String username, String password, MailSecurityType securityType, boolean acceptInvalidCertificates) throws  MailException
     {
         super(host, port, username, password, securityType, acceptInvalidCertificates);
         try
@@ -37,8 +37,8 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             store = null;
+            throw new MailException(e);
         }
     }
 
@@ -47,20 +47,21 @@ public class MailReceiverManager extends MailManager
         return store;
     }
 
-    public void close()
+    public void close() throws MailException
     {
         try
         {
             store.close();
+            store = null;
         }
         catch (MessagingException e)
         {
-            e.printStackTrace();
+            store = null;
+            throw new MailException(e);
         }
-        store = null;
     }
 
-    public List<Folder> getFolders()
+    public List<Folder> getFolders() throws MailException
     {
         try
         {
@@ -69,47 +70,48 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return new ArrayList<Folder>();
     }
 
-    public Folder openFolder(String folderName, boolean readOnly)
+    public Folder openFolder(String folderName, boolean readOnly) throws MailException
     {
         try
         {
             Folder folder = store.getFolder(folderName);
-            if (folder == null)
+            if (folder == null || !folder.exists())
                 return null;
             folder.open(readOnly ? Folder.READ_ONLY : Folder.READ_WRITE);
             return folder;
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return null;
     }
 
-    public Folder createFolder(String folderName)
+    public Folder createFolder(Folder parent, String folderName) throws MailException
     {
         try
         {
-            Folder folder = store.getDefaultFolder().getFolder(folderName);
+            Folder folder = parent.getFolder(folderName);
+            if (folder == null)
+                return null;
+            boolean result = true;
             if (!folder.exists())
-                folder.create(Folder.HOLDS_MESSAGES);
+                result = folder.create(Folder.HOLDS_MESSAGES);
+            if (!result)
+                return null;
             folder.open(Folder.READ_WRITE);
             return folder;
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return null;
-
     }
 
-    public void closeFolder(Folder folder)
+    public void closeFolder(Folder folder) throws MailException
     {
         try
         {
@@ -117,11 +119,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public int getUnreadMessagesCount(Folder folder)
+    public int getUnreadMessagesCount(Folder folder) throws MailException
     {
         try
         {
@@ -129,13 +131,12 @@ public class MailReceiverManager extends MailManager
         }
         catch (MessagingException e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return 0;
     }
 
 
-    public Message[] getUnreadMessages(Folder folder)
+    public Message[] getUnreadMessages(Folder folder) throws MailException
     {
         FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
         try
@@ -145,12 +146,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return new Message[] {};
     }
 
-    public int getNewMessagesCount(Folder folder)
+    public int getNewMessagesCount(Folder folder) throws MailException
     {
         try
         {
@@ -158,12 +158,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (MessagingException e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return 0;
     }
 
-    public Message[] getNewMessages(Folder folder)
+    public Message[] getNewMessages(Folder folder) throws MailException
     {
         FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.RECENT), true);
         try
@@ -173,12 +172,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return new Message[] {};
     }
 
-    public void markMessagesAsRead(Folder folder, Message[] messages)
+    public void markMessagesAsRead(Folder folder, Message[] messages) throws MailException
     {
         try
         {
@@ -186,16 +184,16 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public void markMessageAsRead(Folder folder, Message message)
+    public void markMessageAsRead(Folder folder, Message message) throws MailException
     {
         markMessagesAsRead(folder, new Message[] { message });
     }
 
-    public void copyMessages(Folder fromFolder, Folder toFolder, Message[] messages)
+    public void copyMessages(Folder fromFolder, Folder toFolder, Message[] messages) throws MailException
     {
         try
         {
@@ -203,16 +201,16 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public void copyMessage(Folder fromFolder, Folder toFolder, Message message)
+    public void copyMessage(Folder fromFolder, Folder toFolder, Message message) throws MailException
     {
         copyMessages(fromFolder, toFolder, new Message[] { message });
     }
 
-    public void deleteMessages(Folder folder, Message[] messages)
+    public void deleteMessages(Folder folder, Message[] messages) throws MailException
     {
         try
         {
@@ -220,11 +218,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public void deleteMessage(Folder folder, Message message)
+    public void deleteMessage(Folder folder, Message message) throws MailException
     {
         deleteMessages(folder, new Message[] { message });
     }
@@ -334,7 +332,7 @@ public class MailReceiverManager extends MailManager
         return result;
     }
 
-    public String getMessageFrom(Message message)
+    public String getMessageFrom(Message message) throws MailException
     {
         try
         {
@@ -342,12 +340,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return "";
     }
 
-    public String getMessageSubject(Message message)
+    public String getMessageSubject(Message message) throws MailException
     {
         try
         {
@@ -355,12 +352,11 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return "";
     }
 
-    public String getMessageContent(Message message)
+    public String getMessageContent(Message message) throws MailException
     {
         String result = null;
         try
@@ -389,7 +385,7 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
 
         return result != null ? result : "";
@@ -420,7 +416,7 @@ public class MailReceiverManager extends MailManager
         return result;
     }
 
-    public List<MailAttachment> getMessageAttachments(Message message)
+    public List<MailAttachment> getMessageAttachments(Message message) throws MailException
     {
         List<MailAttachment> result = null;
 
@@ -438,7 +434,7 @@ public class MailReceiverManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
 
         return result;
