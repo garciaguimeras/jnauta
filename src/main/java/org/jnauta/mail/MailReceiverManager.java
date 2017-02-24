@@ -159,6 +159,42 @@ public class MailReceiverManager extends MailManager
         }
     }
 
+    public int getMessagesCount(Folder folder) throws MailException
+    {
+        try
+        {
+            return folder.getMessageCount();
+        }
+        catch (MessagingException e)
+        {
+            throw new MailException(e);
+        }
+    }
+
+    public Message[] getMessages(Folder folder) throws MailException
+    {
+        try
+        {
+            return folder.getMessages();
+        }
+        catch (Exception e)
+        {
+            throw new MailException(e);
+        }
+    }
+
+    public Message[] getMessages(Folder folder, int start, int total) throws MailException
+    {
+        try
+        {
+            return folder.getMessages(start, start + total);
+        }
+        catch (Exception e)
+        {
+            throw new MailException(e);
+        }
+    }
+
     public int getNewMessagesCount(Folder folder) throws MailException
     {
         try
