@@ -26,22 +26,22 @@ public class MailSenderManager extends MailManager
         session = SmtpSession.createSmtpSession(host, port, username, password, securityType, acceptInvalidCertificates);
     }
 
-    public Message createMessage(String subject, String from, String to)
+    public Message createMessage(String subject, String from, String to) throws MailException
     {
         return createMessage(subject, from, new String[] { to }, new String[] {}, new String[] {});
     }
 
-    public Message createMessage(String subject, String from, String[] to)
+    public Message createMessage(String subject, String from, String[] to) throws MailException
     {
         return createMessage(subject, from, to, new String[] {}, new String[] {});
     }
 
-    public Message createMessage(String subject, String from, String[] to, String[] cc)
+    public Message createMessage(String subject, String from, String[] to, String[] cc) throws MailException
     {
         return createMessage(subject, from, to, cc, new String[] {});
     }
 
-    public Message createMessage(String subject, String from, String[] to, String[] cc, String[] bcc)
+    public Message createMessage(String subject, String from, String[] to, String[] cc, String[] bcc) throws MailException
     {
         try
         {
@@ -60,12 +60,11 @@ public class MailSenderManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return null;
     }
 
-    public void addMessageBody(Message message, String body)
+    public void addMessageBody(Message message, String body) throws MailException
     {
         try
         {
@@ -77,11 +76,11 @@ public class MailSenderManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public void addMessageAttachment(Message message, String filename, String mimeType, Object attachment)
+    public void addMessageAttachment(Message message, String filename, String mimeType, Object attachment) throws MailException
     {
         try
         {
@@ -94,11 +93,11 @@ public class MailSenderManager extends MailManager
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
     }
 
-    public boolean sendMessage(Message message)
+    public void sendMessage(Message message) throws MailException
     {
         try
         {
@@ -106,13 +105,11 @@ public class MailSenderManager extends MailManager
             transport.connect(host, port, username, password);
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
-            return true;
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new MailException(e);
         }
-        return false;
     }
 
 }
