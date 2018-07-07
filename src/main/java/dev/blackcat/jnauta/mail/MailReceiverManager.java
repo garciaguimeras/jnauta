@@ -1,4 +1,4 @@
-package org.jnauta.mail;
+package dev.blackcat.jnauta.mail;
 
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;

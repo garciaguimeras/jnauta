@@ -1,4 +1,4 @@
-package org.jnauta.mail;
+package dev.blackcat.jnauta.mail;
 
 /**
  * Created by noel on 2/18/17.

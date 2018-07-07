@@ -1,4 +1,4 @@
-package org.jnauta.mail;
+package dev.blackcat.jnauta.mail;
 
 import java.io.IOException;
 import java.net.InetAddress;

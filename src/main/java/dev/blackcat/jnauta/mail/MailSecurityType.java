@@ -1,4 +1,4 @@
-package org.jnauta.mail;
+package dev.blackcat.jnauta.mail;
 
 public enum MailSecurityType
 {

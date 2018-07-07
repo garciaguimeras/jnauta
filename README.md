@@ -1,9 +1,14 @@
 # jNauta
 
-An incomplete Java mail library, 
-customized to be used with cuban Nauta accounts.
+An incomplete Java library to be used with cuban Nauta accounts.
+Contains the following subprojects:
 
-## Features
+* **jNauta Mail** for sending and receiving emails
+* **jNauta Net** for login and logout on Nauta network
+
+## jNauta Mail
+
+### Features
 
 * Version 0.2.0
     * IMAP protocol support
@@ -24,6 +29,30 @@ customized to be used with cuban Nauta accounts.
     * Retrieve unread messages from a folder
     * Get message information (sender, subject and content in text mode)
     * Add attachments to messages
+
+### Configurations
+
+#### Nauta over POP3
+
+* Server: **pop.nauta.cu**
+* Port: **110**
+* Available folders:
+    * INBOX
+
+#### Nauta over IMAP
+
+* Server: **imap.nauta.cu**
+* Port: **143**
+* Available folders:
+    * INBOX
+    * Drafts
+    * Junk
+    * Trash
+    * Sent
+    * Archives
+    * Templates
+
+## jNauta Net
 
 ## Building the library
 
@@ -55,25 +84,3 @@ dependencies {
     compile 'com.github.garciaguimeras:jnauta.{version}'
 }
 ```
-
-## Nauta configurations
-
-### Nauta over POP3
-
-* Server: **pop.nauta.cu**
-* Port: **110**
-* Available folders:
-    * INBOX
-
-### Nauta over IMAP
-
-* Server: **imap.nauta.cu**
-* Port: **143**
-* Available folders:
-    * INBOX
-    * Drafts
-    * Junk
-    * Trash
-    * Sent
-    * Archives
-    * Templates

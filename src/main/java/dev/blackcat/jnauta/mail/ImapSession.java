@@ -1,9 +1,7 @@
-package org.jnauta.mail;
+package dev.blackcat.jnauta.mail;
 
 import com.sun.mail.imap.IMAPSSLStore;
 import com.sun.mail.imap.IMAPStore;
-import com.sun.mail.pop3.POP3SSLStore;
-import com.sun.mail.pop3.POP3Store;
 
 import javax.mail.*;
 import java.util.Properties;
