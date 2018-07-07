@@ -18,8 +18,6 @@ public class Connection
         POST
     }
 
-    // new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort))
-
     protected Request.Builder GETRequestBuilder(String url, String parameters)
     {
         if (parameters != null)
