@@ -1,37 +1,31 @@
 package dev.blackcat.jnauta.net;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.List;
 
 public class Authentication
 {
 
-    Proxy proxy;
+    Connection.Proxy proxy;
     String username;
     String password;
 
-    // this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyServer, proxyPort));
+    Connection connection;
 
-    public Authentication(String username, String password, Proxy proxy)
+    public Authentication(ConnectionBuilder.Method method, String username, String password, Connection.Proxy proxy)
     {
         this.username = username;
         this.password = password;
         this.proxy = proxy;
+        this.connection = ConnectionBuilder.build(method);
     }
 
     public AuthenticationResponseParser.LoginResult login()
     {
-        List<String> response;
-        Connection connection = new Connection();
+        Connection.Result response;
         AuthenticationResponseParser parser = new AuthenticationResponseParser();
 
         response = connection.get("https://secure.etecsa.net:8443", this.proxy, null);
-        parser.parseHomeResponse(response);
-
-        HashMap<String, String> dict = parser.parseHomeResponse(response);
+        HashMap<String, String> dict = parser.parseHomeResponse(response.content);
         if (!dict.containsKey("gotopage"))
             dict.put("gotopage", "/nauta_hogar/LoginURL/pc_login.jsp");
         if (!dict.containsKey("successpage"))
@@ -42,23 +36,25 @@ public class Authentication
         dict.put("username", this.username);
         dict.put("password", this.password);
 
-        response = connection.post("https://secure.etecsa.net:8443/LoginServlet", this.proxy, Utils.toURLEncoded(dict));
-        return parser.parseLoginResponse(response);
+        response = connection.post("https://secure.etecsa.net:8443/LoginServlet", this.proxy, dict);
+        //if (response.statusCode >= 300 && response.statusCode < 400)
+        //    response = connection.get("https://secure.etecsa.net:8443/web/online.do", this.proxy, null);
+        return parser.parseLoginResponse(response.content);
     }
 
     public String getAvailableTime(String timeParams)
     {
-        Connection connection = new Connection();
-        List<String> response = connection.get("https://secure.etecsa.net:8443/EtecsaQueryServlet", this.proxy, timeParams);
-        return response != null && response.size() > 0 ? response.get(0) : null;
+        Connection.Result response;
+        response = connection.get("https://secure.etecsa.net:8443/EtecsaQueryServlet", this.proxy, timeParams);
+        return response != null && response.content.size() > 0 ? response.content.get(0) : null;
     }
 
     public boolean logout(String formContent)
     {
-        Connection connection = new Connection();
         AuthenticationResponseParser parser = new AuthenticationResponseParser();
-        List<String> response =connection.get("https://secure.etecsa.net:8443/LogoutServlet", this.proxy, formContent);
-        return parser.parseLogoutResponse(response);
+        Connection.Result response;
+        response = connection.get("https://secure.etecsa.net:8443/LogoutServlet", this.proxy, formContent);
+        return parser.parseLogoutResponse(response.content);
     }
 
 }

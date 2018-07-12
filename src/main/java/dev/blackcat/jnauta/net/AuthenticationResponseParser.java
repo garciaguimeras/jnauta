@@ -14,6 +14,9 @@ public class AuthenticationResponseParser
         public String timeParams;
         public boolean alreadyConnected;
         public boolean noMoney;
+        public boolean badUsername;
+        public boolean badPassword;
+        public boolean isGoogle;
     }
 
     public HashMap<String, String> parseHomeResponse(List<String> lines)
@@ -35,7 +38,7 @@ public class AuthenticationResponseParser
             Matcher m2 = pattern2.matcher(line);
             if (m2.find() && !result.containsKey("CSRFHW"))
             {
-                result.put("CSRFHW", m1.group(1));
+                result.put("CSRFHW", m2.group(1));
             }
         }
         return result;
@@ -44,18 +47,26 @@ public class AuthenticationResponseParser
     public LoginResult parseLoginResponse(List<String> lines)
     {
         Pattern pattern1 = Pattern.compile("var urlParam = \"([A-Za-z0-9=_&]*)\"");
-        Pattern pattern2 = Pattern.compile("alert\\(\"El usuario ya está conectado.\"\\);");
+        Pattern pattern2 = Pattern.compile("g_httpRequest.open\\(\"post\", \"/EtecsaQueryServlet\\?([A-Za-z0-9=_&@.]*)\", true\\);");
         Pattern pattern3 = Pattern.compile("alert\\(\"Su tarjeta no tiene saldo disponible");
-        Pattern pattern4 = Pattern.compile("g_httpRequest.open\\(\"post\", \"/EtecsaQueryServlet\\?([A-Za-z0-9=_&@.]*)\", true\\);");
+        Pattern pattern4 = Pattern.compile("alert\\(\"El usuario ya está conectado.\"\\);");
+        Pattern pattern5 = Pattern.compile("alert\\(\"Entre el nombre de usuario y contraseña correctos");
+        Pattern pattern6 = Pattern.compile("alert\\(\"No se pudo autorizar al usuario");
 
         String session = null;
-        String timeParams = "";
+        String timeParams = null;
         boolean alreadyConnected = false;
         boolean noMoney = false;
+        boolean badUsername = false;
+        boolean badPassword = false;
+        boolean isGoogle = false;
 
         for (String line: lines)
         {
             line = line.trim();
+
+            if (line.contains("<title>Google</title>"))
+                isGoogle = true;
 
             Matcher m1 = pattern1.matcher(line);
             if (m1.find())
@@ -66,7 +77,7 @@ public class AuthenticationResponseParser
             Matcher m2 = pattern2.matcher(line);
             if (m2.find())
             {
-                alreadyConnected = true;
+                timeParams = m2.group(1);
             }
 
             Matcher m3 = pattern3.matcher(line);
@@ -78,15 +89,30 @@ public class AuthenticationResponseParser
             Matcher m4 = pattern4.matcher(line);
             if (m4.find())
             {
-                timeParams = m4.group(1);
+                alreadyConnected = true;
+            }
+
+            Matcher m5 = pattern5.matcher(line);
+            if (m5.find())
+            {
+                badPassword = true;
+            }
+
+            Matcher m6 = pattern6.matcher(line);
+            if (m6.find())
+            {
+                badUsername = true;
             }
         }
 
-        if (session == null && !alreadyConnected && !noMoney)
+        if (session == null && timeParams == null && !alreadyConnected && !noMoney && !badPassword && !badUsername && !isGoogle)
             return null;
 
         LoginResult result = new LoginResult();
         result.alreadyConnected = alreadyConnected;
+        result.badPassword = badPassword;
+        result.badUsername = badUsername;
+        result.isGoogle = isGoogle;
         result.noMoney = noMoney;
         result.session = session;
         result.timeParams = timeParams;
