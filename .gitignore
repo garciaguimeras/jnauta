@@ -2,3 +2,5 @@
 gradle/*
 build/*
 .gradle/*
+jnauta-mail/build/*
+jnauta-net/build/*
