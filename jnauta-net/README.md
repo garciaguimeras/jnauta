@@ -13,10 +13,11 @@
 
 The connection was implemented using three different librarys, known as "connection methods":
 
-* **DEFAULT** uses java.net library
+* **DEFAULT** uses java.net library (internally uses Sun implementation in Linux OpenJDK 1.8)
 * **OK_HTTP** uses oknttp3 library
 * **HTTP_CLIENT** uses org.apache.http.client library
 
-Currently the DEFAULT method (java.net library) works perfectly. Other two methods redirects login page
+Currently the DEFAULT method (java.net library using Sun implementation) and OK_HTTP method work fine. Other method redirect login page
 to https://google.com, avoiding to get the logout url.
-So its highly recommended **NOT TO USE** the OK_HTTP and HTTP_CLIENT methods yet.
+So its highly recommended **NOT TO USE** the HTTP_CLIENT method yet.
+

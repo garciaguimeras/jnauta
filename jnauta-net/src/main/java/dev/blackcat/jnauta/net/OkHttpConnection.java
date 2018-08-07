@@ -36,7 +36,7 @@ public class OkHttpConnection extends Connection
     @Override
     protected Connection.Result http(Connection.Type type, String url, Proxy proxy, String parameters)
     {
-        List<String> output = new ArrayList<String>();
+        final List<String> output = new ArrayList<String>();
         final Connection.Result result = new Connection.Result();
         result.url = url;
 
@@ -51,10 +51,11 @@ public class OkHttpConnection extends Connection
                 public Response intercept(Chain chain) throws IOException
                 {
                     result.url = chain.request().url().toString();
-                    // System.out.println(result.url);
+                    System.out.println(result.statusCode + ": " + result.url);
                     return chain.proceed(chain.request());
                 }
             });
+            clientBuilder.cookieJar(OkHttpCookieJar.getInstance());
             OkHttpClient client = clientBuilder.build();
 
             Request.Builder requestBuilder;
@@ -63,26 +64,30 @@ public class OkHttpConnection extends Connection
             else
                 requestBuilder = POSTRequestBuilder(url, parameters);
 
-            requestBuilder.addHeader("User-Agent", "Mozilla/5.0");
-            requestBuilder.addHeader("Referer", "https://secure.etecsa.net:8443/");
-            requestBuilder.addHeader("Host", "secure.etecsa.net");
-            requestBuilder.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-            requestBuilder.addHeader("Accept-Language", "en-US,en;q=0.5");
-            requestBuilder.addHeader("Connection", "keep-alive");
-            requestBuilder.addHeader("Cookie", this.getCookies());
+            requestBuilder.header("User-Agent", "Mozilla/5.0");
+            //requestBuilder.header("Referer", "https://secure.etecsa.net:8443/");
+            //requestBuilder.header("Host", "secure.etecsa.net");
+            //requestBuilder.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            //requestBuilder.header("Accept-Encoding", "gzip, deflate, br");
+            //requestBuilder.header("Accept-Language", "en-US,en;q=0.5");
+            requestBuilder.header("Connection", "keep-alive");
+            //requestBuilder.header("Cookie", this.getCookies());
 
             Request request = requestBuilder.build();
             Call call = client.newCall(request);
             Response response = call.execute();
-            InputStream isContent = response.body().byteStream();
+
             result.statusCode = response.code();
-
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(isContent));
-            String s = "";
-            while ((s = buffer.readLine()) != null)
-                output.add(s);
-
-            this.setCookies(response.header("Set-Cookie"));
+            System.out.println(result.statusCode);
+            if (response.isSuccessful())
+            {
+                InputStream isContent = response.body().byteStream();
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(isContent));
+                String s = "";
+                while ((s = buffer.readLine()) != null)
+                    output.add(s);
+                setCookies(response.header("Set-Cookie"));
+            }
         }
         catch (Exception e)
         {

@@ -42,6 +42,13 @@ public class Authentication
         return parser.parseLoginResponse(response.content);
     }
 
+    public AuthenticationResponseParser.LoginResult accountStatus()
+    {
+        AuthenticationResponseParser parser = new AuthenticationResponseParser();
+        Connection.Result response = connection.get("https://secure.etecsa.net:8443/web/online.do", this.proxy, null);
+        return parser.parseLoginResponse(response.content);
+    }
+
     public String getAvailableTime(String timeParams)
     {
         Connection.Result response;

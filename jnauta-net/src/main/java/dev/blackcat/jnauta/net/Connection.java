@@ -1,8 +1,5 @@
 package dev.blackcat.jnauta.net;
 
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,14 +25,10 @@ public abstract class Connection
         public int statusCode;
     }
 
+
     private String cookies = "";
 
     protected abstract Connection.Result http(Connection.Type type, String url, Proxy proxy, String parameters);
-
-    public Connection()
-    {
-        CookieHandler.setDefault(new CookieManager());
-    }
 
     public void setCookies(String cookies)
     {

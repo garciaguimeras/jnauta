@@ -1,10 +1,9 @@
 package dev.blackcat.jnauta.net;
 
 import javax.net.ssl.*;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -15,6 +14,12 @@ import java.util.List;
 
 public class DefaultConnection extends Connection
 {
+    
+    public DefaultConnection()
+    {
+        CookieHandler.setDefault(new CookieManager());
+    }
+
     @Override
     protected Result http(Type type, String urlStr, Proxy proxy, String parameters)
     {
@@ -81,13 +86,14 @@ public class DefaultConnection extends Connection
             {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setRequestMethod("POST");
-                OutputStream outStream = connection.getOutputStream ();
-                outStream.write(parameters.getBytes("UTF-8"));
+                DataOutputStream outStream = new DataOutputStream(connection.getOutputStream());
+                outStream.writeBytes(parameters);
+                outStream.flush();
                 outStream.close();
             }
 
-            InputStream inStream = connection.getInputStream();
             result.statusCode = connection.getResponseCode();
+            InputStream inStream = connection.getInputStream();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
             String line;
