@@ -1,6 +1,6 @@
 subprojects {
     group 'dev.blackcat.jnauta'
-    version '0.3.1'
+    version '0.3.2'
 }
 
 allprojects {
