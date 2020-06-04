@@ -25,7 +25,8 @@ public class AuthenticationTest
         Assert.assertNotNull(loginResult.session);
         Assert.assertNotEquals(loginResult.session, "");
 
-        System.out.println(loginResult.getParamString());
+        String loginParam = loginResult.getParamString();
+        System.out.println(loginParam);
 
         /*
         AuthenticationResponseParser.LoginResult loginResult2 = authentication.accountStatus();
@@ -41,10 +42,10 @@ public class AuthenticationTest
         System.out.println(loginResult2.session);
          */
 
-        String availTime = authentication.getAvailableTime(loginResult);
+        String availTime = authentication.getAvailableTime(loginParam);
         System.out.println(availTime);
 
-        boolean logoutResult = authentication.logout(loginResult);
+        boolean logoutResult = authentication.logout(loginParam);
         Assert.assertTrue(logoutResult);
     }
 

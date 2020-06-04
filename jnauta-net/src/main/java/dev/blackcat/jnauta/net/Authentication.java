@@ -51,18 +51,18 @@ public class Authentication
         return parser.parseLoginResponse(response.content);
     }
 
-    public String getAvailableTime(AuthenticationResponseParser.LoginResult loginResult)
+    public String getAvailableTime(String loginParams)
     {
-        String params = "op=getLeftTime&" + loginResult.getParamString();
+        String params = "op=getLeftTime&" + loginParams;
 
         Connection.Result response;
         response = connection.post("https://secure.etecsa.net:8443/EtecsaQueryServlet", this.proxy, params);
         return response != null && response.content.size() > 0 ? response.content.get(0) : null;
     }
 
-    public boolean logout(AuthenticationResponseParser.LoginResult loginResult)
+    public boolean logout(String loginParams)
     {
-        String params = loginResult.getParamString() + "&remove=1";
+        String params = loginParams + "&remove=1";
 
         AuthenticationResponseParser parser = new AuthenticationResponseParser();
         Connection.Result response;
