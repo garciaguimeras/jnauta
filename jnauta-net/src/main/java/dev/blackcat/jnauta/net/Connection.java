@@ -47,6 +47,11 @@ public abstract class Connection
         return http(Connection.Type.GET, url, proxy, parameters);
     }
 
+    public Connection.Result post(String url, Proxy proxy, String parameters)
+    {
+        return http(Connection.Type.POST, url, proxy, parameters);
+    }
+
     public Connection.Result post(String url, Proxy proxy, HashMap<String, String> parameters)
     {
         return http(Connection.Type.POST, url, proxy, Utils.toURLEncoded(parameters));

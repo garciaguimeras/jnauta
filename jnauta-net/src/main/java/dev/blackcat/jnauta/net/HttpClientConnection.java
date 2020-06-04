@@ -78,7 +78,7 @@ public class HttpClientConnection extends Connection
             while ((s = buffer.readLine()) != null)
                 output.add(s);
 
-            this.setCookies(response.getFirstHeader("Set-Cookie").getValue());
+            // this.setCookies(response.getFirstHeader("Set-Cookie").getValue());
         }
         catch (Exception e)
         {

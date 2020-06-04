@@ -37,8 +37,10 @@ public class Authentication
         dict.put("password", this.password);
 
         response = connection.post("https://secure.etecsa.net:8443/LoginServlet", this.proxy, dict);
-        //if (response.statusCode >= 300 && response.statusCode < 400)
-        //    response = connection.get("https://secure.etecsa.net:8443/web/online.do", this.proxy, null);
+        /*
+        String param = "CSRFHW=" + dict.getOrDefault("CSRFHW", "");
+        response = connection.get("https://secure.etecsa.net:8443/web/online.do", this.proxy, param);
+        */
         return parser.parseLoginResponse(response.content);
     }
 
@@ -49,18 +51,22 @@ public class Authentication
         return parser.parseLoginResponse(response.content);
     }
 
-    public String getAvailableTime(String timeParams)
+    public String getAvailableTime(AuthenticationResponseParser.LoginResult loginResult)
     {
+        String params = "op=getLeftTime&" + loginResult.getParamString();
+
         Connection.Result response;
-        response = connection.get("https://secure.etecsa.net:8443/EtecsaQueryServlet", this.proxy, timeParams);
+        response = connection.post("https://secure.etecsa.net:8443/EtecsaQueryServlet", this.proxy, params);
         return response != null && response.content.size() > 0 ? response.content.get(0) : null;
     }
 
-    public boolean logout(String formContent)
+    public boolean logout(AuthenticationResponseParser.LoginResult loginResult)
     {
+        String params = loginResult.getParamString() + "&remove=1";
+
         AuthenticationResponseParser parser = new AuthenticationResponseParser();
         Connection.Result response;
-        response = connection.get("https://secure.etecsa.net:8443/LogoutServlet", this.proxy, formContent);
+        response = connection.post("https://secure.etecsa.net:8443/LogoutServlet", this.proxy, params);
         return parser.parseLogoutResponse(response.content);
     }
 
