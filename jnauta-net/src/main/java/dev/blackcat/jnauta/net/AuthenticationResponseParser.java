@@ -127,7 +127,7 @@ public class AuthenticationResponseParser
             wlanacname = (wlanacname == null && m15.find()) ? m15.group(1) : wlanacname;
 
             Matcher m16 = pattern16.matcher(line);
-            wlanmac = (wlanacname == null && m16.find()) ? m16.group(1) : wlanmac;
+            wlanmac = (wlanmac == null && m16.find()) ? m16.group(1) : wlanmac;
 
             Matcher m17 = pattern17.matcher(line);
             wlanuserip = (wlanuserip == null && m17.find()) ? m17.group(1) : wlanuserip;
