@@ -15,24 +15,3 @@ git clone https://github.com/garciaguimeras/jnauta.git
 cd jnauta
 gradle clean jar 
 ```
-
-## Including jNauta dependency
-
-Include the [JitPack](https://jitpack.io) repository
-
-``` 
-allprojects {
-    repositories {
-        jcenter()
-        maven { url 'https://jitpack.io' }
-    }
-}
-```
-
-Add the dependency
-
-```
-dependencies {
-    compile 'com.github.garciaguimeras:jnauta.{version}'
-}
-```
